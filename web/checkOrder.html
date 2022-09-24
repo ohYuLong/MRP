@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单采购管理</title>
+    <link rel="stylesheet" href="css/css.css">
+    <style>
+        .p{
+            top:10%;
+            left: 38%;
+            position:fixed;
+        }
+        .table1{
+            width:500px;
+            left:20%;
+            top:40%;
+            margin-left:-168px;
+            margin-top:-140px;
+            position:fixed;
+            /*border: 1px solid #c0c0c0;*/
+            /*cellspacing:0;*/
+        }
+        .table2{
+            width:500px;
+            right:10%;
+            top:40%;
+            margin-left:-168px;
+            margin-top:-140px;
+            position:fixed;
+            /*border: 1px solid #c0c0c0;*/
+            /*cellspacing:0;*/
+        }
+        .page{
+            top:90%;
+            left: 17%;
+            position:fixed;
+            height: auto;
+        }
+        td{
+            height: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1 align="center">制衣业MRP系统生产</h1>
+<div id="checkOrder">
+    <p class="p">
+        <input type="text" v-model="material">
+        <input type="button" value="搜索" @click="orderVagueByMaterialData();orderByMaterialData();orderByIdData()">
+        <input type="button" value="查询所有" @click="orderTotalNumData();controlTure();empty()">
+        <input type="button" value="上一页" onclick="window.location.href='order.html'">
+    </p>
+    <table class="table1">
+        <tr>
+            <td>序号</td>
+            <td>材料名</td>
+            <td>采购数量</td>
+            <td>单价</td>
+            <td>总价</td>
+            <td>采购员id</td>
+            <td>时间</td>
+        </tr>
+        <tr v-for="(item,index) in all">
+            <td>{{item.id}}</td>
+            <td>{{item.material}}</td>
+            <td>{{item.num}}</td>
+            <td>{{item.price}}</td>
+            <td>{{item.sum}}</td>
+            <td>{{item.buyerid}}</td>
+            <td>{{item.newtime}}</td>
+        </tr>
+    </table>
+    <table class="table2">
+        <tr>
+            <td>序号</td>
+            <td>材料名</td>
+            <td>采购数量</td>
+            <td>单价</td>
+            <td>总价</td>
+            <td>采购员id</td>
+            <td>时间</td>
+        </tr>
+        <tr>
+            <td>{{id}}</td>
+            <td>{{materialname}}</td>
+            <td>{{num}}</td>
+            <td>{{price}}</td>
+            <td>{{sum}}</td>
+            <td>{{buyerid}}</td>
+            <td>{{newtime}}</td>
+        </tr>
+    </table>
+
+    <p class="page" v-show="show">
+        共<span>{{count}}</span>条，当前第
+        <span><span v-text="currentPage"></span>/{{totalPages}}</span>页
+        <!--        如果是第一页，则只显示下一页、尾页 -->
+        <input type="button" value="首页" @click="goFirstPage">
+        <input type="button" value="上一页" @click="goPreviousPage">
+        <input type="button" value="下一页" @click="goNextPage">
+        <input type="button" value="尾页" @click="goLastPage">
+        <!--         如果是最后一页，则只显示首页、上一页 -->
+        转到第<input type="text"  v-model="destinationPage">页
+        <input type="button"  value="跳转" @click="goToPage(destinationPage)">
+    </p>
+</div>
+
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+    const checkOrder = new Vue({
+        el:"#checkOrder",
+        data:{
+            material:"",
+            all:[],
+            id:"",
+            materialname:"",
+            num:"",
+            price:"",
+            sum:"",
+            buyerid:"",
+            newtime:"",
+            //    分页查询
+            count:"",//总条数
+            currentPage:"1",//当前页
+            totalPages:"",//总页数
+            destinationPage:"1",//目的页
+            show:false,
+        },
+        methods: {
+            //查询所有
+            orderByAllData() {
+                axios({
+                    method: "get",
+                    url: "/MRP/getOrder.doZhang",
+                    data: "",
+                }).then(response => {
+                    this.all = response.data;
+                })
+            },
+            //根据id查询
+            orderByIdData() {
+                axios({
+                    method: "get",
+                    url: "/MRP/getOrderById.doZhang?orderId=" + this.material,
+                    data: "",
+                }).then(response => {
+                    let data = response.data;
+                    this.id = data.id
+                    this.materialname = data.material;
+                    this.num = data.num;
+                    this.price = data.price;
+                    this.sum = data.sum;
+                    this.buyerid = data.buyerid;
+                    this.newtime = data.newtime;
+                })
+            },
+            //根据名字查询
+            orderByMaterialData() {
+                axios({
+                    method: "get",
+                    url: "/MRP/getOrderByMaterial.doZhang?material=" + this.material,
+                    data: "",
+                }).then(response => {
+                    this.all = response.data;
+                })
+            },
+            //根据名字模糊查询
+            orderVagueByMaterialData() {
+                axios({
+                    method: "get",
+                    url: "/MRP/vagueCheckByMaterial.doZhang?material=" + this.material,
+                    data: "",
+                }).then(response => {
+                    this.all = response.data;
+                })
+            },
+            //    分页查询
+            goToPage(destinationPage) {
+                if (destinationPage < 1) {
+                    destinationPage = 1};
+                if (destinationPage > this.totalPages) {
+                    destinationPage = this.totalPages};
+                axios.get("/MRP/getOrderPage.doZhang?page=" + (destinationPage - 1) * 10).then(response=>{
+                    this.destinationPage = destinationPage;
+                    this.currentPage = this.destinationPage;
+                    this.all = response.data;
+                    // console.log(response.data)
+                })
+            },
+            goFirstPage(){
+                this.goToPage(1)
+            },
+            goLastPage(){
+                this.goToPage(parseInt(this.totalPages))
+            },
+            goNextPage(){
+                this.goToPage(parseInt(this.currentPage) + 1)
+            },
+            goPreviousPage(){
+                this.goToPage(parseInt(this.currentPage) - 1)
+            },
+            // 分页
+            orderPageData(){
+                // this.orderTotalNumData();
+                axios({
+                    method:"get",
+                    url:"/MRP/getOrderPage.doZhang?page=0",
+                    data:"",
+                }).then(response=>{
+                    this.all = response.data;
+                    // console.log(response.data);
+                    console.log(this.all);
+                })
+            },
+            //总记录数
+            orderTotalNumData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/getTotalOrderNum.doZhang",
+                    data:"",
+                }).then(response=>{
+                    this.count = response.data;
+                    this.totalPages = Math.ceil(parseInt(this.count)/10)
+                    // console.log(this.count);
+                })
+                this.orderPageData();
+            },
+            controlTure(){
+                this.show = !this.show;
+            },
+            empty(){
+                this.material = "";
+            },
+        }
+    })
+</script>
+</body>
+</html>

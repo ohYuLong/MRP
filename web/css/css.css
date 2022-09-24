@@ -1,0 +1,42 @@
+h1{
+    background-image: linear-gradient(to right,yellow,green, yellow);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+table {
+    border-collapse: collapse;
+    border: 1px solid #c0c0c0;
+    cellspacing:0;
+    width: 500px;
+    /*margin: 100px auto;*/
+    text-align: center;
+}
+/*th {
+    background-color:greenyellow;
+    font: bold 16px "微软雅黑";
+    color:black;
+    height: 24px;
+}*/
+tr{
+    width: 200px;
+    height: 10px;
+}
+td {
+    border: 1px solid #d0d0d0;
+    color: #404060;
+    padding: 2px;
+    height: 10px;
+}
+input.txt{
+    text-align:center;
+    padding:10px 20px;
+    width:300px;
+}
+select{
+    width: 100px;
+    height: 35px;
+}
+input{
+    width: 100px;
+    height: 30px;
+}

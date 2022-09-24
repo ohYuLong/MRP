@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/beauty.css">
+</head>
+<body>
+<div id="app">
+    <h1 align="center">生产记录列表</h1>
+    <div style="display:inline-block; margin-right:150px; float:left;">
+        <table border="1" cellspacing="0" cellpadding="10">
+            <tr>
+                <td>序号</td>
+                <td>材料名</td>
+                <td>成品名</td>
+                <td>材料数量</td>
+                <td>成品数量</td>
+                <td>生产时间</td>
+            </tr>
+            <tr v-for="(item,index) in productions">
+                <td>{{item.id}}</td>
+                <td>{{item.material}}</td>
+                <td>{{item.product}}</td>
+                <td>{{item.m_num}}</td>
+                <td>{{item.p_num}}</td>
+                <td>{{item.time}}</td>
+                <td><button @click="del(index)">删除</button></td>
+            </tr>
+            <tr>
+                <td colspan="6"><!--    分页导航-->
+                    <button @click="current(1)">首页</button>
+                    <button @click="current(currentP-1)">上一页</button>
+                    <button v-for="value in sumP" @click="current(value)">{{value}}</button>
+                    <button @click="current(currentP+1)">下一页</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <span>
+        <div style="display:inline-block;float:left;">
+         <table>
+            <tr>
+             <td colspan="6">
+                  请输入：<input type="text" name="product" v-model="pre">
+                         <button @click="checkOnes">查询某些生产的成品</button>
+             </td>
+            </tr>
+            <tr>
+                <td>序号</td>
+                <td>材料名</td>
+                <td>成品名</td>
+                <td>材料数量</td>
+                <td>成品数量</td>
+                <td>生产时间</td>
+            </tr>
+             <tr v-for="(value,index) in ones">
+                 <td>{{value.id}}</td>
+                 <td>{{value.material}}</td>
+                 <td>{{value.product}}</td>
+                 <td>{{value.m_num}}</td>
+                 <td>{{value.p_num}}</td>
+                 <td>{{value.time}}</td>
+            </tr>
+         </table>
+        </div>
+    </span>
+    <br>
+    <a href="warehouse.html"><button>返回上一级</button></a>
+</div>
+<script src="../static/js/axios.min.js"></script>
+<script src="../static/js/vue.js"></script>
+<script>
+    const production = new Vue({
+        el:"#app",
+        data:{
+            pre:"",
+            ones:[],
+            productions:[],
+            sumP:"",
+            currentP:"",
+        },
+        methods:{
+            //删除记录
+            del(index){
+                axios.get("../delectOne.so?id="+this.productions[index].id).then(res=>{
+                  if(res.data.key=="1"){
+                      this.productions.splice(index,1);
+                      alert(res.data.value);
+                      return;
+                  }
+                  if(res.data.key=="0"){
+                      alert(res.data.value);
+                  }
+                });
+            },
+            shijianc(time) {
+                var date = new Date(time)
+                var Y = date.getFullYear() + '-'
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+                return Y + M + D + h + m + s;
+
+            },
+            //分页导航 传入当前页
+            current(page){
+                this.currentP = page;
+                axios.get("../checkProAll.so?page="+page).then((res)=>{
+                    this.productions = res.data.value.content;
+                    this.sumP = res.data.value.totalPage;
+                    for (let i = 0; i < this.productions.length; i++) {
+                        let newtime = this.shijianc( this.productions[i].time);
+                        this.productions[i].time = newtime;
+                    }
+                   // console.log(res.data.value);
+
+                });
+            },
+            //模糊查询
+            checkOnes(){
+              // alert(1111);
+                axios.get("../checkPrefix.so?product="+this.pre).then((response)=>{
+                    this.ones=response.data.value;
+                    for (let i = 0; i < this.ones.length; i++) {
+                        let newtime = this.shijianc(this.ones[i].time);
+                        this.ones[i].time=newtime;
+                    }
+                   // console.log(response.data.value);
+
+                });
+            }
+
+        },
+        created(){
+           this.current(1);
+
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单采购管理</title>
+    <link rel="stylesheet" href="css/css.css">
+    <style>
+        div{
+            position: absolute;
+        }
+        .bu{
+            top:45%;
+            left: 43%;
+            position:fixed;
+        }
+        .h3{
+            top:10%;
+            left:48%;
+            position:fixed;
+        }
+        .de{
+            top:60%;
+            left:40%;
+            position:fixed;
+        }
+        table{
+            width:500px;
+            left:45%;
+            top:40%;
+            margin-left:-168px;
+            margin-top:-140px;
+            position:fixed;
+        }
+        p{
+            top:55%;
+            left: 50%;
+            position:fixed;
+        }
+        .p1{
+            top:80%;
+            left: 50%;
+            position:fixed;
+        }
+    </style>
+</head>
+<body>
+<h1 align="center">制衣业MRP系统生产</h1>
+<div id="rawMaterial">
+    <h3 align="center" class="h3">添加</h3>
+<form>
+    <table>
+        <tr>
+            <td>材料名</td>
+            <td>数量</td>
+            <td>价格</td>
+        </tr>
+        <tr>
+            <td><input type="text" name="material" v-model="material"></td>
+            <td><input type="number" name="nums" min="0" v-model="num" @blur="controlNum"></td>
+            <td><input type="number" num="prices" min="0" v-model="price" @blur="controlPrice"></td>
+        </tr>
+    </table>
+    <p class="bu">
+    <input class="in" type="button" value="提交" @click="MaterialData();empty()">
+    <input class="in" type="button" value="上一页" onclick="window.location.href='order.html'">
+    </p>
+    <p><span>{{massage}}</span></p>
+    <div class="de">
+    <h3 align="center">删除</h3>
+    请选择原料名：
+    <select v-model="name" @click="materialIdData">
+        <option v-for="n in nameList" :value="n.material">{{n.material}}</option>
+    </select>
+        <input type="button" value="删除" @click="deleteMaterialNameData();empty1()">
+        <p class="p1"><span>{{msg}}</span></p>
+    </div>
+</form>
+</div>
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+    const rawMaterial = new Vue({
+        el:"#rawMaterial",
+        data:{
+            material:"",
+            num:0,
+            price:0,
+            massage:"",
+            name:"",
+            nameList:[],
+            msg:"",
+        },
+        methods:{
+            //      原料表：添加一条记录
+            MaterialData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/insertMaterial.doZhang?material="+rawMaterial.material+"&num="+rawMaterial.num+"&price="+rawMaterial.price,
+                    data:"",
+                }).then(response=>{
+                    this.massage = response.data;
+                })
+            },
+            //    原料表：根据原料名查询原料表的id和原料名
+            materialIdData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/getMaterialId.doZhang?materialId="+this.name,
+                    data:"",
+                }).then(response=>{
+                    this.nameList = response.data;
+                })
+            },
+            //      根据材料名删除
+            deleteMaterialNameData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/deleteRawMaterialByName.doZhang?material="+this.name,
+                    data:"",
+                }).then(response=>{
+                    this.msg = response.data;
+                })
+            },
+            controlNum(){
+                if(this.num < 0 || this.num % 1 != 0){
+                    this.num = 0;
+                    alert("请输入正整数!");
+                }
+            },
+            controlPrice(){
+                if(this.price < 0 || this.price % 1 != 0){
+                    this.num = 0;
+                    alert("请输入正确的价格");
+                }
+            },
+            empty(){
+                this.material = "";
+                this.num = 0;
+                this.price = 0;
+            },
+            empty1(){
+                this.name = "";
+            }
+        }
+    })
+</script>
+</body>
+</html>

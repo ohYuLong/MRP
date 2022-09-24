@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #div1{
+            height: 250px;
+        }
+    </style>
+</head>
+<body>
+<div id="div1"></div>
+<div id="register" align="center">
+    <form>
+        <p>
+            账号：<input type="text" name="username" v-model="user.username" @blur="verifyUsername" placeholder="用户名在6-12位">
+            <span>{{msg}}</span>
+        </p>
+        <p>
+            密码：<input type="password" name="password" v-model="user.password">
+        </p>
+        <p>
+            姓名：<input type="text" name="name" v-model="user.name">
+        </p>
+        <p>
+            部门：<input type="radio" value="采购部" name="department" v-model="user.department"> 采购部
+            <input type="radio" value="销售部" name="department" v-model="user.department"> 销售部
+            <input type="radio" value="生产部" name="department" v-model="user.department"> 生产部
+            <input type="radio" value="仓库部" name="department" v-model="user.department"> 仓库部
+            <input type="radio" value="人事部" name="department" v-model="user.department"> 人事部
+            <input type="radio" value="boss" name="department" v-model="user.department"> boss
+        </p>
+        <p>
+            <input type="button" value="提交" @click="registerData">
+            <input type="button" value="后退" @click="back">
+        </p>
+    </form>
+</div>
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+
+    const register = new Vue({
+        el:"#register",
+        data:{
+            msg:"",
+            user:{
+                department:'采购部'
+            }
+        },
+        methods:{
+            async verifyUsername() {
+                if(this.user.username.length < 6 || this.user.username.length > 12){
+                    this.msg = "用户名必须在6-12位";
+                    return false;
+                }
+                let flag = false;
+                await axios.get("admin/checkUser.do3?username=" + this.user.username).then(response=>{
+                    console.log(response.data);
+                    this.msg = response.data.message;
+                    if(response.data.code == '0'){
+                        flag = false;
+                    }
+                    if(response.data.code == '1'){
+                        flag = true;
+                    }
+                });
+                return flag;
+            },
+            registerData(){
+                let result = this.verifyUsername();
+                result.then(r => {
+                    if(r) {
+                        let formData = new FormData();
+                        formData.append("username",this.user.username);
+                        formData.append("password",this.user.password);
+                        formData.append("name",this.user.name);
+                        formData.append("department",this.user.department);
+                        axios({
+                            method:"post",
+                            url:"admin/addUser.do3",
+                            data: formData,
+                            headers:{
+                                'content-Type':'multipart/form-data'
+                            }
+                        }).then(response => {
+                            let data = response.data;
+                            alert(data.message);
+                        })
+                    }
+                });
+            },
+            back(){
+                history.back();
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

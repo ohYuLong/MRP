@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单采购管理</title>
+    <link rel="stylesheet" href="css/css.css">
+    <style>
+        .p{
+            top:20%;
+            left: 30%;
+            position:fixed;
+        }
+        .bu{
+            top:60%;
+            left: 43%;
+            position:fixed;
+        }
+        table{
+            width:500px;
+            left:45%;
+            top:60%;
+            margin-left:-168px;
+            margin-top:-140px;
+            position:fixed;
+        }
+        p{
+            top:55%;
+            left: 48%;
+            position:fixed;
+        }
+    </style>
+</head>
+<body>
+<h1 align="center">制衣业MRP系统生产</h1>
+<div id="updateMaterial">
+    <p class="p">
+<!--    请输入原料名:<input type="text" v-model="name" @click="empty()">-->
+    请输入原料名：<select v-model="name" @click="materialIdData();getMaterialData()">
+        <option v-for="n in nameList" :value="n.material">{{n.material}}</option>
+    </select>
+<!--    <input type="button" value="搜索" @click="getMaterialData();clickTure()" @keyup.enter="getMaterialData();clickTure()">-->
+    请输入价格：<input type="number" v-model="newprice" @blur="controlNewPrice">
+    <input type="button" value="完成" @click="updateMaterialData()" @keyup.enter="updateMaterialData()">
+    </p>
+    <table border="1" cellspacing="0">
+        <tr>
+            <td>序号</td>
+            <td>材料名</td>
+            <td>数量</td>
+            <td>价格</td>
+        </tr>
+        <tr>
+            <td>{{id}}</td>
+            <td>{{materialname}}</td>
+            <td>{{num}}</td>
+            <td>{{price}}</td>
+        </tr>
+    </table>
+    <input type="button" class="bu" value="上一页" onclick="window.location.href='order.html'">
+    <p><span>{{message}}</span></p>
+</div>
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+    const updateMaterial = new Vue({
+        el:"#updateMaterial",
+        data:{
+            name:"",
+            nameList:[],
+            id:"",
+            materialname:"",
+            num:"",
+            price:"",
+            time:"",
+            newprice:"",
+            newnum:"",
+            message:"",
+            // show:false,
+        },
+        methods:{
+            //根据名字查询
+            getMaterialData(){
+                axios({
+                    methods:"get",
+                    url:"/MRP/getMaterial.doZhang?materialName="+this.name,
+                    data:"",
+                }).then(response=>{
+                    let data = response.data;
+                    this.id=data.id;
+                    this.materialname=data.material;
+                    this.num=data.num;
+                    this.price=data.price;
+                    this.newprice=data.price;
+                })
+            },
+            //修改价格
+            updateMaterialData(){
+                axios({
+                    methods:"get",
+                    url:"/MRP/updateMaterial.doZhang?materialName="+this.name+"&newprice="+this.newprice,
+                    data:"",
+                }).then(response=>{
+                    this.price = this.newprice;
+                    this.message=response.data;
+                })
+            },
+            //    原料表：根据原料名查询原料表的id和原料名(报错但成功修改)
+            materialIdData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/getMaterialId.doZhang?materialId="+this.name,
+                    data:"",
+                }).then(response=>{
+                    this.nameList = response.data;
+                })
+            },
+            // clickTure() {
+            //     this.show = !this.show;
+            // },
+            controlNum(){
+                if(this.num < 0 || this.num % 1 != 0){
+                    this.num = 0;
+                    alert("请输入正整数!");
+                }
+            },
+            controlNewPrice(){
+                if(this.newprice < 0){
+                    this.newprice = 0;
+                    alert("请输入正整数!");
+                }
+            },
+            empty(){
+                this.name = "";
+                this.id = "";
+                this.materialname = "";
+                this.num = "";
+                this.price = "";
+                this.time = "";
+                this.newprice = "";
+                this.num = "";
+            }
+        }
+    })
+</script>
+</body>
+</html>

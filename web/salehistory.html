@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="GBK">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+    <h1>销售历史记录</h1>
+    <table border="1" cellpadding="10" cellspacing="0">
+        <tr>
+            <td>销售编号</td>
+            <td>成品名</td>
+            <td>数量</td>
+            <td>价格</td>
+            <td>总价</td>
+            <td>销售员id</td>
+            <td>顾客</td>
+            <td>销售时间</td>
+        </tr>
+        <tr  v-for="(item,index) in sales">
+            <td>{{item.s_id}}</td>
+            <td>{{item.product}}</td>
+            <td>{{item.num}}</td>
+            <td>{{item.price}}</td>
+            <td>{{item.sum}}</td>
+            <td>{{item.saleperson_id}}</td>
+            <td>{{item.customer}}</td>
+            <td>{{item.time}}</td>
+        </tr>
+    </table>
+    <a href="" @click.prevent="submit1">1页</a>
+    <a href="" @click.prevent="submit2">2页</a>
+    <a href="" @click.prevent="submit3">3页</a>
+    <a href="" @click.prevent="submit4">4页</a>
+    <a href="" @click.prevent="submit5">5页</a>
+   <a href="salemanage.html"><button>返回上一级</button></a>
+</div>
+<script src="static/js/axios.min.js"></script>
+<script src="static/js/vue.js"></script>
+<script>
+    const history = new Vue({
+        el:"#app",
+        data:{
+           sales:{},
+        },
+        methods:{
+            submit1(){
+                axios.get("querylists.sale?page=1").then((response)=>{
+                   this.sales = response.data.value;
+                   // console.log(response.data.value);
+
+                });
+            },
+            submit2(){
+                axios.get("querylists.sale?page=2").then((response)=>{
+                    this.sales = response.data.value;
+                    //console.log(response.data.value);
+
+                });
+            },
+            submit3(){
+                axios.get("querylists.sale?page=3").then((response)=>{
+                    this.sales = response.data.value;
+                    //console.log(response.data.value);
+
+                });
+            },
+            submit4(){
+                axios.get("querylists.sale?page=4").then((response)=>{
+                    this.sales = response.data.value;
+                    //console.log(response.data.value);
+
+                });
+            },
+            submit5(){
+                axios.get("querylists.sale?page=5").then((response)=>{
+                    this.sales = response.data.value;
+                   // console.log(response.data.value);
+
+                });
+            }
+
+        }
+    });
+</script>
+</body>
+</html>

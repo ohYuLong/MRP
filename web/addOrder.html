@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>订单采购管理</title>
+    <link rel="stylesheet" href="css/css.css">
+    <style>
+        .bu{
+            top:45%;
+            left: 43%;
+            position:fixed;
+        }
+        table{
+            width:500px;
+            left:45%;
+            top:40%;
+            margin-left:-168px;
+            margin-top:-140px;
+            position:fixed;
+        }
+        p{
+            top:55%;
+            left: 48%;
+            position:fixed;
+        }
+    </style>
+</head>
+<body>
+<h1 align="center">制衣业MRP系统生产</h1>
+<div id="addOrder">
+    <form>
+        <table>
+            <tr>
+                <td>材料名</td>
+                <td>采购数量</td>
+                <td>单价</td>
+                <td>总价</td>
+                <td>采购员id</td>
+            </tr>
+            <tr>
+                <td>
+                    <select v-model="name" @change="materialNameData" @click="materialIdData">
+                        <option v-for="n in nameList" :value="n.material">{{n.material}}</option>
+                    </select>
+                </td>
+                <td><input type="number" min="0" v-model="num" @mousemove="orderSum" @blur="orderSum"></td>
+                <td><span>{{price}}</span></td>
+                <td><span>{{sum}}</span></td>
+                <td><input type="text" v-model="buyerid" @blur="controlId" @keydown.enter="purchaseData();empty()"></td>
+            </tr>
+        </table>
+        <p class="bu">
+        <input type="button" value="提交" @click="purchaseData();empty()">
+        <input type="button" value="上一页" onclick="window.location.href='order.html'">
+        </p>
+        <p><span>{{massage}}</span></p>
+    </form>
+</div>
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+    const addOrder = new Vue({
+        el:"#addOrder",
+        data:{
+            name:"",
+            num:0,
+            price:0,
+            sum:0,
+            nameList:[],
+            buyerid:"",
+            massage:"",
+        },
+        methods:{
+            //新增订单
+            purchaseData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/insertOrder.doZhang?material="+this.name+"&num="+this.num+"&price="+this.price+"&sum="+this.sum+"&buyerid="+this.buyerid,
+                    data:"",
+                }).then(response=> {
+                    this.massage = response.data;
+                })
+            },
+            //    原料表：根据原料名查询原料表原料名和原料价格
+            materialNameData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/getMaterialPrice.doZhang?materialName="+this.name,
+                    data:"",
+                }).then(response=>{
+                    addOrder.price = response.data.price;
+                })
+            },
+            //    原料表：根据原料名查询原料表的id和原料名
+            materialIdData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/getMaterialId.doZhang?materialId="+this.name,
+                    data:"",
+                }).then(response=>{
+                    this.nameList = response.data;
+                })
+            },
+            orderSum(){
+                this.sum = this.num * this.price;
+            },
+            controlNum(){
+                if(this.num < 0 || this.num % 1 != 0){
+                    this.num = 0;
+                    this.sum = 0;
+                    alert("请输入正整数!");
+                }
+            },
+            controlId(){
+              if(!(this.buyerid > 0 && this.buyerid % 1 == 0)){
+                  this.buyerid = 0;
+                  alert("请输入正确的员工id")
+              }
+            },
+            empty(){
+                this.name = 0;
+                this.num = 0;
+                this.price = 0;
+                this.sum = 0;
+                this.buyerid = null;
+            }
+        }
+    })
+</script>
+</body>
+</html>

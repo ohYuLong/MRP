@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<body>
+<div id="app">
+    <input type="text" placeholder="请输入要查询的员工账号"><button @click="selectUser">查询</button>
+    <table>
+        <tr></tr>
+    </table>
+</div>
+<script>
+    const app=new Vue({
+        el:"#app",
+        data:{},
+        methods:{
+            selectUser(){
+                axios.post({
+                    method:"post",
+                    url:"selectUser.sto",
+                    data:null
+                }).then(response=>{
+
+                })
+            }
+        },
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单采购管理</title>
+    <link rel="stylesheet" href="css/css.css">
+    <style>
+        .div{
+            top:15%;
+            left: 38.5%;
+            position:fixed;
+        }
+    </style>
+</head>
+<body>
+<h1 align="center">制衣业MRP系统生产</h1>
+<div id="order" class="div">
+    <input type="button" value="订单管理" @click="clickTure1()">
+    <input type="button" value="原料管理" @click="clickTure2()">
+    <input type="button" value="上一页" onclick="window.location.href='login.html'">
+    <p class="p1" v-show="show1">
+        <input type="button" value="新增" onclick="window.location.href='addOrder.html'">
+        <input type="button" value="查询" onclick="window.location.href='checkOrder.html'">
+    </p>
+    <p class="p2" v-show="show2">
+        <input type="button" value="新增和删除" onclick="window.location.href='addMaterial.html'">
+        <input type="button" value="修改" onclick="window.location.href='updateMaterial.html'">
+        <input type="button" value="查询" onclick="window.location.href='checkMaterial.html'">
+    </p>
+</div>
+<script src="static/js/vue.js"></script>
+<script>
+    const order = new Vue({
+        el:"#order",
+        data:{
+            show1:false,
+            show2:false
+        },
+        methods:{
+            clickTure1() {
+                this.show1 = !this.show1;
+                this.show2 = this.show2;
+            },
+            clickTure2() {
+                this.show1 = this.show1;
+                this.show2 = !this.show2;
+            }
+        }
+    })
+</script>
+</body>
+</html>

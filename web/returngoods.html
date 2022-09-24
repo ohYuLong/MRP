@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>退货管理</h1>
+<div id="app">
+<table>
+    <tr>
+        <td>序号</td>
+        <td>销售编号</td>
+        <td>成品名</td>
+        <td>成品数量</td>
+        <td>单价</td>
+        <td>总价</td>
+        <td>销售员id</td>
+        <td>客户姓名</td>
+        <td>时间</td>
+    </tr>
+    <tr>
+        <td>{{sales.id}}</td>
+        <td>{{sales.s_id}}</td>
+        <td>{{sales.product}}</td>
+        <td>{{sales.num}}</td>
+        <td>{{sales.price}}</td>
+        <td>{{sales.sum}}</td>
+        <td>{{sales.saleperson_id}}</td>
+        <td>{{sales.customer}}</td>
+        <td>{{sales.newtime}}</td>
+    </tr>
+</table>
+        请输入销售编号：<input type="text" v-model="sale.s_id">
+        <button @click="checksid">查询</button>
+    <br>
+        请输入修改数量：<input type="text" v-model="sale.num">
+    <br>
+        请输入修改总价：<input type="text" v-model="sale.sum">
+    <br>
+        <button @click="submitSale">确认</button>
+        <button @click="back">返回上一级</button>
+</div>
+<script src="static/js/axios.min.js"></script>
+<script src="static/js/vue.js"></script>
+<script>
+        const modify = new Vue({
+            el:"#app",
+            data:{
+                sales:{},
+                sale:{
+                    num:"",
+                    sum:"",
+                    s_id:"",
+                    product:""
+                }
+            },
+            methods:{
+                back(){
+                    location.href = "salemanage.html"
+                },
+                checksid(){
+                    axios.get("checksid.doChang?saleids="+this.sale.s_id).then((repose)=>{
+                        this.sales = repose.data.value;
+                    })
+                },
+                submitSale() {
+                    this.sale.product=this.sales.product;
+                    axios.post("returngoods.doChang",this.sale).then((repose) => {
+                       this.sales = repose.data.value;
+
+                    })
+
+                }}
+
+        })
+</script>
+</body>
+</html>

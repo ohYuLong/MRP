@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <style>
+        #div1{
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+<div id="div1"></div>
+<div align="center">
+  <h1>用户登录</h1>
+    <div id="login">
+        <table>
+            <tr>
+                <td align="center">账号：</td>
+                <td colspan="2"><input type="text" name="username" v-model="user.username" @keyup.enter="login"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td align="center">密码：</td>
+                <td colspan="2"><input type="password" name="password" v-model="user.password" @keyup.enter="login"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td align="center">验证码：</td>
+                <td><input type="text" name="code" size="4" maxlength="6" v-model="user.code" @keyup.enter="login"></td>
+                <td><img :src="src" @click="change"></td>
+            </tr>
+            <tr>
+                <td align="center"  colspan="3"><input type="button" value="登录" @click="login" ></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+  <script src="static/js/vue.js"></script>
+  <script src="static/js/axios.min.js"></script>
+
+<script>
+    const login = new Vue({
+        el : "#login",
+        data:{
+            user:{
+                path:''
+            },
+            src:"verify.do"
+        },
+        methods:{
+            login() {
+                let formData = new FormData();
+                formData.append("username",this.user.username);
+                formData.append("password",this.user.password);
+                formData.append("code",this.user.code);
+                axios({
+                    method: "post",
+                    url: "admin/login.do",
+                    data: formData,
+                }).then(response => {
+                    let data = response.data;
+                    alert(data.message);
+                    if(data.code == '2'){
+                    //    登录成功
+                        location.href = "department.html";
+                    }else if(data.code == '3'){
+                        location.href = "order.html";
+                    }else if(data.code == '4'){
+                        location.href ="salegoods.html"
+                    }else if(data.code == '5'){
+                        location.href ="warehouse.html"
+                    }else if(data.code == '6'){
+                        location.href ="production.html"
+                    }else if(data.code == "7"){
+                        location.href = "usermanage.html"
+                    }else if(data.code == "9"){
+                        location.href = "finace.html"
+                    }
+                });
+            },
+
+            change() {
+                // 为了避免浏览器缓存，传一个参数
+                // 这个参数是没有意义的，它就是为了防止浏览器缓存
+                // verify.do?v=0.123123
+                // verify.do?v=0.5645656
+                this.src = 'verify.do?v=' + Math.random();
+            },
+        }
+    });
+</script>
+
+</body>
+</html>

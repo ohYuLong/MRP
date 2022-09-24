@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>员工管理</title>
+    <style>
+        .pages * {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+
+<div id="app" align="center">
+    <div>用户管理:</div>
+    <button @click="add">添加用户</button>
+    <table border="1" cellpadding="10">
+        <thead>
+        <tr>
+            <th>用户id</th>
+            <th>账号</th>
+            <th>密码</th>
+            <th>部门</th>
+            <th>更新时间</th>
+            <th>更多信息</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+
+        <tbody v-if="isShow">
+        <tr v-for="(item,index) in pageInfo.list">
+            <td>{{item.id}}</td>
+            <td>{{item.username}}</td>
+            <td>{{item.password}}</td>
+            <td>{{item.department}}</td>
+            <td>{{item.time}}</td>
+            <td><input type="button" value="查看更多" @click="update(item.id)"></td>
+            <td><input type="button" value="删除" @click="del(item.id,index)"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pages">
+        <button  @click="getPageInfo(currentPage-1)">上一页</button>
+        <div v-if="isShow" class="nav">
+            <button v-for="(item,index) in page" @click="getPageInfo(index+1)">{{index+1}}</button>
+        </div>
+        <button @click="getPageInfo(currentPage+1)">下一页</button>
+        <button @click="back">返回上一级</button>
+    </div>
+
+</div>
+
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+    window.onload = function () {
+
+        axios ({
+            method: "get",
+            url: "showUserBaseInfo.do3?currentPage="+ app.currentPage,
+        }).then(response => {
+            app.pageInfo = response.data;
+            app.page = new Array(app.pageInfo.pageCount);
+            console.log(response.data);
+        })
+    }
+    const app = new Vue({
+       el: "#app",
+       data: {
+            isShow: true,
+               // 默认当前页
+               currentPage: 1,
+               // 页信息
+               pageInfo: [],
+               // 页码
+               page: [],
+               // 用户信息对象
+               userObj: {},
+       },
+        methods: {
+            back(){
+                location.href = "department.html"
+            },
+            getPageInfo(currentPage) {
+                // 边界检查
+                if(currentPage == 0) {
+                    currentPage = 1;
+                }
+                if(currentPage > app.page.length) {
+                    currentPage = app.page.length;
+                }
+                // 更新当前页
+                app.currentPage = currentPage;
+                // 获取PageInfo
+                axios({
+                    method: "get",
+                    url: "showUserBaseInfo.do3?currentPage=" + currentPage,
+                }).then(response => {
+                    app.pageInfo = response.data;
+                    app.page = new Array(app.pageInfo.pageCount);
+                    console.log(response.data);
+                })
+            },
+           add() {
+               location.href="emp_update.html";
+           },
+           detail(id) {
+               location.href="emp_info.html?id="+id;
+           },
+            update(id) {
+                location.href="emp_info.jsp?id="+id;
+            },
+            del(id,index) {
+                axios ({
+                    method: "get",
+                    url: "delUserInfo.do3?id="+id,
+                }).then(response => {
+                    console.log(response.data);
+                    // 如果删除成功
+                    var flag = confirm("确认删除...");
+                    if(flag) {
+                        app.userInfoList.splice(index,1);
+                    } else {
+                        alert("取消删除...");
+                    }
+
+                })
+            },
+        }
+    })
+
+</script>
+</body>
+</html>

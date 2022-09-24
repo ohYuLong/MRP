@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财务查询</title>
+    <script src="../wly/js/vue.js"></script>
+    <style>
+        .a {
+            width: 1000px;
+            /*height: 800px;*/
+            height: auto;
+            margin: 0 auto;
+        }
+
+        .b {
+            background-image: linear-gradient(to right, yellow, green, yellow);
+            -webkit-background-clip: text;
+            color: transparent;
+            font-size: 50px;
+            text-align: center;
+        }
+
+        .c {
+
+            background-color: rgb(209, 245, 155);
+            width: 500px;
+            /*height: 300px;*/
+            height: auto;
+            border: 1px dashed yellow;
+            margin: 0 auto;
+        }
+
+
+        #select {
+            width: 200px;
+            height: 50px;
+        }
+
+        button {
+            width: 50px;
+            height: 50px;
+        }
+
+        table {
+            border-collapse: collapse;
+            border: 1px solid #c0c0c0;
+            width: 500px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        th {
+            background-color: greenyellow;
+            font: bold 16px "微软雅黑";
+            color: black;
+            height: 24px;
+        }
+
+        td {
+            border: 1px solid #d0d0d0;
+            color: #404060;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <fieldset class="a">
+            <legend class="b">财务查询系统</legend>
+            <button @click="back">返回</button>
+            <table>
+                <tr>
+                    <th>总金额</th>
+                    <th>销售额</th>
+                    <th>采购额</th>
+                </tr>
+                <tr>
+                    <td>{{total}}</td>
+                    <td>{{saleMoney}}</td>
+                    <td>{{orderMoney}}</td>
+                </tr>
+            </table>
+            <hr color="yellow">
+            <table>
+                <tr>
+                    <th> <select id="select" v-model="tid" style="text-align:center;">
+                            <option value="0">所有</option>
+                            <option value="1">采购额</option>
+                            <option value="2">销售额</option>
+                        </select></th>
+                    <th>
+                        起始时间：<input type="date" v-model="start" />
+                    </th>
+                    <th>
+                        终止时间：<input type="date" v-model="end" />
+                    </th>
+                    <th> <button type="submit" @click="query()">查询</button></th>
+                </tr>
+            </table>
+               <div class="c">
+                <span>
+                    <table>
+                    <tr>
+                        <td>名字</td>
+                        <td>数量</td>
+                        <td>单价</td>
+                        <td>时间</td>
+                    </tr>
+
+                        <tr v-for="(value,index) in messages">
+                        <td>{{value.name}}</td>
+                        <td>{{value.num}}</td>
+                        <td>{{value.price}}</td>
+                        <td>{{value.newTime}}</td>
+                        </tr>
+                        </table>
+                    </span>
+                   <div class="ui_flt" style="height: 30px; line-height: 30px;">
+                       共有
+                       <span >{{count}}</span>
+                       条记录，当前第
+                       <span >
+                    <span v-text="currentPage"></span>
+                    /
+                    {{totalPages}}</span>
+                       页
+                   </div>
+                   <div class="ui_frt">
+                       <!--    如果是第一页，则只显示下一页、尾页 -->
+
+                       <input type="button" value="首页" @click="goFirstPage" />
+                       <input type="button" value="上一页" @click="goPreviousPage" />
+                       <input type="button" value="下一页" @click="goNextPage"
+                              onclick="jumpNormalPage(2);"/>
+                       <input type="button" value="尾页" @click="goLastPage"
+                              onclick="jumpNormalPage(9);"/>
+
+
+                       <!--     如果是最后一页，则只显示首页、上一页 -->
+
+                       转到第<input type="text"  v-model="destinationPage" />页
+                       <input type="button"  value="跳转" @click="goToPage(destinationPage)"/>
+                   </div>
+            </div>
+        </fieldset>
+    </div>
+    <script src="static/js/vue.js"></script>
+    <script src="static/js/axios.min.js"></script>
+    <script>
+        const app = new Vue({
+            el:"#app",
+            data:{
+                start:"2022-01-01",
+                end:"2022-12-31",
+                total:0,
+                orderMoney:0,
+                saleMoney:0,
+                tid:"0",
+                tid2:"0",
+                messages:[],
+                count:"",
+                currentPage:"1",//当前页
+                destinationPage:"1",//目的页
+                totalPages:""//总页数
+            },
+            methods:{
+                back(){
+                    location.href = "department.html"
+                },
+                goToPage(destinationPage){
+                    if(destinationPage < 1)
+                        destinationPage = 1
+                    if(destinationPage > this.totalPages)
+                        destinationPage = this.totalPages
+                    // alert("tid2="+this.tid2);
+                    switch (this.tid2){
+
+                        case "0":
+                            axios.get("queryAll.doMoney?page=" + (destinationPage - 1) * 10+"&start="+this.start+"&end="+this.end).then(mess=>{
+                                this.destinationPage = destinationPage
+                                this.currentPage= this.destinationPage
+                                this.messages=mess.data;
+                            })
+                            break;
+                        case "1":
+                            axios.get("queryOrder.doMoney?page=" + (destinationPage - 1) * 10+"&start="+this.start+"&end="+this.end).then(mess=>{
+                                this.destinationPage = destinationPage
+                                this.currentPage= this.destinationPage
+                                this.messages=mess.data;
+                            })
+                            break;
+                        case "2":
+                            axios.get("querySale.doMoney?page=" + (destinationPage - 1) * 10+"&start="+this.start+"&end="+this.end).then(mess=>{
+                                this.destinationPage = destinationPage
+                                this.currentPage= this.destinationPage
+                                this.messages=mess.data;
+                            })
+                            break;
+
+                    }
+
+
+                },
+                goFirstPage(){
+                    this.goToPage(1)
+                },
+                goLastPage(){
+                    this.goToPage(parseInt(this.totalPages))
+                },
+                goNextPage(){
+                    this.goToPage(parseInt(this.currentPage) + 1)
+                },
+                goPreviousPage(){
+                    this.goToPage(parseInt(this.currentPage) - 1)
+                },
+
+                query(){
+                     this.getcount();
+                     this.currentPage=1;
+                    switch (this.tid2){
+                        case "0":
+                            axios({
+                                method:"get",
+                                url:"queryAll.doMoney?page=0&start="+this.start+"&end="+this.end,
+                                data:"",
+                            }).then(response => {
+                                this.messages=response.data;
+                                //console.log(this.messages)
+                            })
+                            break;
+                        case "1":
+                            axios({
+                                method:"get",
+                                url:"queryOrder.doMoney?page=0&start="+this.start+"&end="+this.end,
+                                data:"",
+                            }).then(response => {
+                                this.messages=response.data;
+                                //console.log(this.messages)
+                            })
+                            break;
+                        case "2":
+                            axios({
+                                method:"get",
+                                url:"querySale.doMoney?page=0&start="+this.start+"&end="+this.end,
+                                data:"",
+                            }).then(response => {
+                                this.messages=response.data;
+                                //console.log(this.messages)
+                            })
+                            break;
+                    }
+
+                },
+
+                getcount(){
+                    this.tid2=this.tid;
+                    switch (this.tid2){
+                        case "0":
+                            axios({
+                                method:"get",
+                                url:"getAllNum.doMoney?start="+this.start+"&end="+this.end,
+                                data:"",
+
+                            }).then(response => {
+                                this.count=response.data;
+                                console.log(response.data)
+                                this.totalPages=Math.ceil(parseInt(this.count)/10);
+                                /*if(parseInt(this.count)%10>0){
+                                    this.totalPages=this.totalPages+1;
+                                }*/
+                            })
+                            break;
+                        case "1":
+                            axios({
+                                method:"get",
+                                url:"getOrderNum.doMoney?start="+this.start+"&end="+this.end,
+                                data:"",
+
+                            }).then(response => {
+                                this.count=response.data;
+                                console.log(response.data)
+                                this.totalPages=Math.ceil(parseInt(this.count)/10);
+                            })
+                            break;
+                        case "2":
+                            axios({
+                                method:"get",
+                                url:"getSaleNum.doMoney?start="+this.start+"&end="+this.end,
+                                data:"",
+
+                            }).then(response => {
+                                this.count=response.data;
+                                console.log(response.data)
+                                this.totalPages=Math.ceil(parseInt(this.count)/10);
+                                /*if(parseInt(this.count)%10>0){
+                                    this.totalPages=this.totalPages+1;
+                                }*/
+                            })
+                            break;
+                    }
+
+                },
+            },
+            created(){
+                axios.get("MainMoney.doMoney").then(response=>{
+                    console.log(response.data);
+                   let a= response.data
+                   /* total:0,
+                        orderMoney:0,
+                        saleMoney:0,*/
+                    this.total=a[0].code;
+                    this.orderMoney=a[1].code;
+                    this.saleMoney=a[2].code;
+                })
+            }
+
+
+        });
+    </script>
+</body>
+
+</html>

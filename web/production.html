@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>制衣业MRP系统生产</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            border: 1px solid #c0c0c0;
+            width: 500px;
+            margin: 100px auto;
+            text-align: center;
+        }
+
+        th {
+            background-color:greenyellow;
+            font: bold 16px "微软雅黑";
+            color:black;
+            height: 24px;
+        }
+
+        td {
+            border: 1px solid #d0d0d0;
+            color: #404060;
+            padding: 10px;
+        }
+
+
+        h1{
+            background-image: linear-gradient(to right,yellow,green, yellow);
+            -webkit-background-clip: text;
+            color: transparent;
+
+        }
+
+        input.txt{text-align:center;padding:10px 20px;width:300px;}
+    </style>
+</head>
+<body>
+<h1 align="center">制衣业MRP系统生产</h1>
+<div id="app">
+<table>
+    <tr>
+        <th>成品名</th>
+        <th>原材料</th>
+        <th colspan="3">生产数量</th>
+
+    </tr>
+    <tr>
+        <td>P1</td>
+        <td>a</td>
+        <td><input type="number" name="a" min="0" v-model="aa"></td>
+    </tr>
+    <tr>
+        <td>P2</td>
+        <td>b</td>
+        <td><input type="number" name="b" min="0" v-model="bb"></td>
+    </tr>
+    <tr>
+        <td>M1</td>
+        <td>c</td>
+        <td><input type="number" name="c" min="0" v-model="cc"></td>
+    </tr>
+    <tr>
+        <td>M2</td>
+        <td>d</td>
+        <td><input type="number" name="d" min="0" v-model="dd"></td>
+    </tr>
+    <tr>
+        <td ><input type="submit" @click="clear" value= "清空"></td>
+        <td colspan="2"><input type="submit" @click="productionData" value= "提交"></td>
+    </tr>
+    <tr>
+        <td colspan="3">
+            <ul v-for="(a,b) in message01">
+                <li>{{a}}</li>
+            </ul>
+        </td>
+
+    </tr>
+    <tr>
+        <td>
+        <button @click="back">返回</button>
+        </td>
+    </tr>
+</table>
+<!--    <div align="center">-->
+<!--        <button @click="back">返回</button>-->
+<!--    </div>-->
+</div>
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+    const app=new Vue({
+        el:"#app",
+        data:{
+
+            aa:0,
+            bb:0,
+            cc:0,
+            dd:0,
+            message01:[],
+            num:[],
+        },
+
+        methods:{
+            back(){
+                location.href = "department.html"
+            },
+            productionData(){
+                this.num[0]=this.aa;
+                this.num[1]=this.bb;
+                this.num[2]=this.cc;
+                this.num[3]=this.dd;
+
+                console.log(this.num);
+
+                axios({
+                    method:"get",
+                    url:"production.do1?a="+this.aa +"&b="+this.bb+"&c="+this.cc+"&d="+this.dd,
+                    data:"",
+
+                }).then(response => {
+                    let m =response.data;
+                    let n="";
+                    for (let i = 0; i < 4; i++) {
+
+                        if(m[i].code==-1){
+                            n="成功生产"+this.num[i]+"个"+m[i].message+"\n\r";
+                            this.message01.push(n);
+                        }else if(m[i].code==-2){
+
+                        }else {
+                            n=m[i].message+"的生产原料不足,需生产"+this.num[i]+"个产品,但只有"+
+                                m[i].code+"个原料\n\r"
+                            this.message01.push(n);
+                        }
+                    }
+
+                })
+                this.aa=0;
+                this.bb=0;
+                this.cc=0;
+                this.dd=0;
+            },
+            clear(){
+                this.message01=[];
+            }
+
+        }
+
+
+    });
+</script>
+</body>
+</html>

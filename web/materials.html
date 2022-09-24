@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet " href="../static/css/beauty.css" type="text/css">
+</head>
+<body>
+<h1 align="center">原材料列表</h1>
+<div id="app">
+    <table border="1" cellpadding="10" cellspacing="0">
+        <tr>
+            <td>序号</td>
+            <td>原材料名</td>
+            <td>数量</td>
+            <td>价格</td>
+            <td>时间</td>
+        </tr>
+        <tr v-for="(item,index) in materials">
+            <td>{{item.id}}</td>
+            <td>{{item.material}}</td>
+            <td>{{item.num}}</td>
+            <td>{{item.price}}</td>
+            <td>{{item.time}}</td>
+        </tr>
+        <tr>
+            <td colspan="5"> <a href="warehouse.html"><button align="center">返回上一级</button></a></td>
+        </tr>
+    </table>
+
+</div>
+<script src="../static/js/axios.min.js"></script>
+<script src="../static/js/vue.js"></script>
+<script>
+    const checkraw = new Vue({
+        el:"#app",
+        data:{
+            materials:[],
+        },
+        methods:{
+            shijianc(time) {
+                var date = new Date(time)
+                var Y = date.getFullYear() + '-'
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+                return Y + M + D + h + m + s;
+
+            },
+        },
+        created(){
+            axios.get("../checkAll.do").then((response)=>{
+             this.materials =response.data.value;
+                //console.log(response.data.value);
+                for (let i = 0; i < this.materials.length; i++) {
+                    var newtime = this.shijianc(this.materials[i].time);
+                    this.materials[i].time = newtime;
+                }
+            });
+        },
+    });
+</script>
+</body>
+</html>

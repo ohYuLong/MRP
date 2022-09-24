@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册界面</title>
+    <style>
+        #div1{
+            height: 250px;
+        }
+    </style>
+</head>
+<div id="div1"></div>
+<body>
+<div id="register" align="center">
+    <form>
+        <table>
+            <h1>用户注册</h1>
+            <tr>
+                <td align="center">账号：</td>
+                <td><input type="text" name="username" v-model="user.username" @blur="verifyUsername" placeholder="用户名在6-12位"><span>{{msg}}</span></td>
+            </tr>
+            <tr>
+                <td align="center">密码：</td>
+                <td colspan="2"><input type="password" name="password" v-model="user.password"></td>
+            </tr>
+            <tr>
+                <td align="center">确认密码：</td>
+                <td><input type="password" name="repassword" v-model="user.repassword" @blur="verifyUsername"><span>{{rsg}}</span></td>
+            </tr>
+            <tr>
+                <td align="center">姓名：</td>
+                <td colspan="2"><input type="text" name="name" v-model="user.name"></td>
+            </tr>
+            <tr>
+                <td align="center">部门：</td>
+                <td><input type="radio" value="采购部" name="department" v-model="user.department"> 采购部
+                    <input type="radio" value="销售部" name="department" v-model="user.department"> 销售部
+                    <input type="radio" value="生产部" name="department" v-model="user.department"> 生产部
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="radio" value="仓库部" name="department" v-model="user.department"> 仓库部
+                    <input type="radio" value="人事部" name="department" v-model="user.department"> 人事部
+                    <input type="radio" value="财务部" name="department" v-model="user.department"> 财务部
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" align="center"><input type="button" value="提交" @click="registerData"></td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+    const register = new Vue({
+        el:"#register",
+        data:{
+            msg:"",
+            rsg:"",
+            user:{
+                department:'采购部'
+            }
+        },
+        methods:{
+            async verifyUsername() {
+                if(this.user.username.length < 6 || this.user.username.length > 12){
+                    this.msg = "用户名必须在6-12位";
+                    return false;
+                }
+                if(this.user.password != this.user.repassword){
+                    this.rsg ="两次密码不一致..."
+                }else{
+                    this.rsg=""
+                }
+                let flag = false;
+                await axios.get("admin/checkUser.do?username=" + this.user.username).then(response=>{
+                    console.log(response.data);
+                    this.msg = response.data.message;
+                    if(response.data.code == '0'){
+                        flag = false;
+                    }
+                    if(response.data.code == '1'){
+                        flag = true;
+                    }
+                });
+                return flag;
+            },
+            registerData(){
+                let result = this.verifyUsername();
+                result.then(r => {
+                    if(r) {
+                        let formData = new FormData();
+                        formData.append("username",this.user.username);
+                        formData.append("password",this.user.password);
+                        formData.append("name",this.user.name);
+                        formData.append("department",this.user.department);
+                        axios({
+                            method:"post",
+                            url:"admin/addUser.do",
+                            data:formData,
+                            headers:{
+                                'content-Type':'multipart/form-data'
+                            }
+                        }).then(response => {
+                           let data = response.data;
+                           alert(data.message);
+                           if(data.code == '1'){
+                               location.href = "login.html";
+                           }
+                        })
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

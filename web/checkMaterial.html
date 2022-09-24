@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单采购管理</title>
+    <link rel="stylesheet" href="css/css.css">
+    <style>
+        .p{
+            top:10%;
+            left: 30%;
+            position:fixed;
+        }
+        .table1{
+            width:500px;
+            left:20%;
+            top:40%;
+            margin-left:-168px;
+            margin-top:-140px;
+            position:fixed;
+        }
+        .table2{
+            width:500px;
+            right:10%;
+            top:40%;
+            margin-left:-168px;
+            margin-top:-140px;
+            position:fixed;
+        }
+    </style>
+</head>
+<body>
+<h1 align="center">制衣业MRP系统生产</h1>
+<div id="checkMaterial">
+    <form>
+        <p class="p">
+        <input type="text" v-model="material">
+        <input type="button" value="搜索" @click="materialByNameData();materialByIdData()">
+        <input type="button" value="查询所有" @click="materialByAllData();controlTure()">
+        <input type="button" value="上一页" onclick="window.location.href='order.html'">
+        </p>
+        <table class="table1">
+            <tr>
+                <td>序号</td>
+                <td>材料名</td>
+                <td>总数量</td>
+                <td>单价</td>
+                <td>时间</td>
+            </tr>
+            <tr v-for="(item,index) in all">
+                <td>{{item.id}}</td>
+                <td>{{item.material}}</td>
+                <td>{{item.num}}</td>
+                <td>{{item.price}}</td>
+                <td>{{item.newtime}}</td>
+            </tr>
+        </table>
+        <table class="table2">
+            <tr>
+                <td>序号</td>
+                <td>材料名</td>
+                <td>总数量</td>
+                <td>单价</td>
+                <td>时间</td>
+            </tr>
+            <tr>
+                <td>{{id}}</td>
+                <td>{{materialname}}</td>
+                <td>{{num}}</td>
+                <td>{{price}}</td>
+                <td>{{newtime}}</td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script src="static/js/vue.js"></script>
+<script src="static/js/axios.min.js"></script>
+<script>
+    const checkMaterial = new Vue({
+        el:"#checkMaterial",
+        data:{
+            material:"",
+            all:[],
+            id:"",
+            materialname:"",
+            num:"",
+            price:"",
+            newtime:"",
+            show:false,
+        },
+        methods:{
+        //    查询所有
+            materialByAllData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/getRawMaterialAll.doZhang",
+                    data:"",
+                }).then(response=>{
+                    console.log(response.data);
+                    this.all = response.data;
+                })
+            },
+            //    动态获取数量
+            // materialByNumData(){
+            //     axios({
+            //         method:"get",
+            //         url:"/MRP/getOrderAllNum.do",
+            //         data:"",
+            //     }).then(response=>{
+            //         console.log(response.data);
+            //         console.log(this.all);
+            //         this.all = response.data;
+            //         console.log(this.all);
+            //         // this.allNum = this.allNum + response.data.num;
+            //     })
+            // },
+
+            //    根据名字查询
+            materialByNameData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/getRawMaterialName.doZhang?materialname="+this.material,
+                    data:"",
+                }).then(response=>{
+                    let data = response.data;
+                    this.id = data.id;
+                    this.materialname = data.material;
+                    this.num = data.num;
+                    this.price = data.price;
+                    this.newtime = data.newtime;
+                })
+            },
+        //    根据id查询
+            materialByIdData(){
+                axios({
+                    method:"get",
+                    url:"/MRP/getRawMaterialById.doZhang?materialId="+this.material,
+                    data:"",
+                }).then(response=>{
+                    let data = response.data;
+                    this.id = data.id;
+                    this.materialname = data.material;
+                    this.num = data.num;
+                    this.price = data.price;
+                    this.newtime = data.newtime;
+                })
+            },
+            controlTure(){
+                this.show = !this.show;
+            }
+        }
+    })
+</script>
+</body>
+</html>

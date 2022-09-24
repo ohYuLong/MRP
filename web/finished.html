@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/beauty.css">
+</head>
+<body>
+<div id="app">
+    <H1 align="center">成品列表</H1>
+    <div style="display:inline-block; margin-right:150px; float:left;">
+        <table>
+            <tr >
+                <th>序号</th>
+                <th>时间</th>
+                <th>价格</th>
+                <th>成品名</th>
+                <th>数量</th>
+            </tr>
+            <tr v-for="(item,index) in finisheds" >
+                <td>{{item.id}}</td>
+                <td>{{item.time}}</td>
+                <td>{{item.num}}</td>
+                <td>{{item.price}}</td>
+                <td>{{item.product}}</td>
+            </tr>
+        </table>
+    </div>
+    <span>
+        <div style="display:inline-block;float: none;">
+             <table>
+                 <tr>
+                 <td colspan="5"> 请输入：<input type="text" name="product" v-model="pro">
+        <button @click="checkOne">查询</button></td>
+                 </tr>
+            <tr>
+                <th>序号</th>
+                <th>时间</th>
+                <th>价格</th>
+                <th>成品名</th>
+                <th>数量</th>
+            </tr>
+             <tr v-for="(value,index) in ones">
+                <td>{{value.id}}</td>
+                <td>{{value.time}}</td>
+                <td>{{value.num}}</td>
+                <td>{{value.price}}</td>
+                <td>{{value.product}}</td>
+            </tr>
+        </table>
+        </div>
+
+    </span>
+</div>
+<script src="../static/js/axios.min.js"></script>
+<script src="../static/js/vue.js"></script>
+<script>
+    const checkfinished =new Vue({
+        el:"#app",
+        data:{
+
+            finisheds:[],
+            ones:[],
+            pro:"",
+
+        },
+        methods:{
+            checkOne(){
+                axios.get("../checkOnes.dod?product="+this.pro).then((response)=>{
+                   this.ones = response.data.value;
+                    for (let i = 0; i < this.ones.length; i++) {
+                        var newtime = this.shijianc(this.ones[i].time);
+                        this.ones[i].time = newtime;
+
+                    }
+                    //console.log(response.data.value);
+                });
+            },
+            shijianc(time) {
+                var date = new Date(time)
+                var Y = date.getFullYear() + '-'
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' '
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':'
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds())
+                return Y + M + D + h + m + s;
+
+            },
+        },
+
+        created(){
+            axios.get("../checkFinishedAll.dod").then((response)=>{
+             this.finisheds = response.data.value;
+                for (let i = 0; i < this.finisheds.length; i++) {
+                    console.log(this.finisheds[i].time);
+                    var newtime = this.shijianc(this.finisheds[i].time);
+
+                    this.finisheds[i].time = newtime;
+                }
+               // console.log(response.data.value);
+            });
+        }
+    });
+</script>
+</body>
+</html>
